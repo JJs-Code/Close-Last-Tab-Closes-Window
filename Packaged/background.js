@@ -37,19 +37,24 @@ chrome.tabs.onCreated.addListener((tab) => {
 // Track when a tab is closed
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
   time = Date.now();
-  const before = tabQty[removeInfo.windowId] || 1; // tabs before removal
-  updateTabCount(removeInfo.windowId, (after) => {
+  // Use removeInfo.isWindowClosing to skip redundant calls
+  if (removeInfo.isWindowClosing) return;
+
+  // Ask Chrome directly how many tabs remain
+  chrome.tabs.query({ windowId: removeInfo.windowId }, (tabs) => {
+    const after = tabs.length;
+    const before = after + 1;
+
     console.log(`${formatTime(time)} - ❌ Tab #${tabId} closed  in window #${removeInfo.windowId} | before: ${before}, after: ${after}`);
-    handleWindowClose(removeInfo.windowId, before, after);
+    handleWindowClose(removeInfo.windowId, before);
   });
 });
-
 
 
 // FUNCTIONS
 
 // Handle closing the window if only 1 tab was present
-function handleWindowClose(windowId, before, after) {
+function handleWindowClose(windowId, before) {
   if (before === 1 && !currentlyClosingWindows.has(windowId)) {
     currentlyClosingWindows.add(windowId);
     console.log(`${formatTime(time)} - ⚠ Only 1 tab present — closing window #${windowId}`);
