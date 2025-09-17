@@ -1,7 +1,7 @@
 {
   "name": "Close last tab Closes Window",
   "description": "Closes window when the last tab is closed. Prevents chromes default behaviour of opening a new tab instead of closing the window.",
-  "version": "1.0",
+  "version": "1.1",
   "manifest_version": 3,
   "permissions": [
     "tabs",
